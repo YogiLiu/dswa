@@ -43,9 +43,19 @@ Every committed artifact must be in English: source code, identifiers, comments,
 
 Conversation with the owner may use another language, but repository content remains English. Use direct technical English, not machine-translated prose.
 
-### 2.3 Every commit uses the `git-commit` skill
+### 2.3 Never commit or push without explicit owner approval
 
-Before creating any commit, load and follow `.agents/skills/git-commit/SKILL.md` (or run `/skill:git-commit`). Use Conventional Commits, English imperative mood, a description of at most 72 characters, and one logical change per commit. Do not hand-write a commit message outside the skill's workflow. If the skill cannot be loaded, stop and ask the owner.
+Committing and pushing are the owner's decisions, not a step of finishing a task. Do not run `git commit`, `git push`, `git tag`, `git rebase`, `git reset --hard`, or any other command that writes history or publishes commits on your own initiative, even when the implementation is complete and every check passes.
+
+- Finish the work, run the checks, and report the result with the files you changed. Then stop.
+- Wait for an explicit instruction such as "commit this" or "commit and push". A task description that does not mention a commit is not approval, and neither is an approved plan.
+- Approval covers only the change you were asked to make. Ask again before any further commit, any push, and any tag or release.
+- Approval to commit is not approval to push. Unless the owner asked for both in one request, commit and then stop.
+- Never force-push, rewrite published history, or amend a commit the owner has not explicitly asked you to amend.
+
+### 2.4 Every approved commit uses the `git-commit` skill
+
+Before creating any commit, confirm the owner has authorized it (see 2.3), then load and follow `.agents/skills/git-commit/SKILL.md` (or run `/skill:git-commit`). Use Conventional Commits, English imperative mood, a description of at most 72 characters, and one logical change per commit. Do not hand-write a commit message outside the skill's workflow. If the skill cannot be loaded, stop and ask the owner.
 
 Commitizen (`cz.toml`) and pre-commit (`.pre-commit-config.yaml`) validate commits. Install the hooks once per checkout with `pre-commit install` and `pre-commit install --hook-type pre-push`; install the Python tools with pipx, uv, or the owner's tool manager. `cz commit` does not replace the `git-commit` skill. Do not bypass hooks with `--no-verify`; only the owner may authorize an exception.
 
@@ -55,9 +65,11 @@ For a release requested by the owner, prepare version and changelog changes with
 
 Never commit secrets, credentials, `.pi/plans/`, dependency trees, or generated local files.
 
-### 2.4 Plans live under `.pi/plans/` only
+### 2.5 Plans are optional and owner-triggered
 
-Every plan document produced for this project must be stored under `.pi/plans/`:
+Most tasks do not need a plan: implement small, well-specified work directly. Do not create, draft, or submit a plan document on your own initiative, and do not turn a routine change into a planning exercise.
+
+Plans exist only in Plannotator plan mode, which the owner starts through `@plannotator/pi-extension`: `/plannotator-plan-mode`, `Ctrl+Alt+P`, or `pi --plan`. Plan mode is also the only situation in which `plannotator_submit_plan` may be called. When the owner has started it, every plan document produced for this project must be stored under `.pi/plans/`:
 
 ```text
 .pi/plans/
@@ -68,13 +80,14 @@ Every plan document produced for this project must be stored under `.pi/plans/`:
 - Name files `YYYY-MM-DD-<kebab-case-slug>.md`.
 - Create the plan in `active/` and pass that path to `plannotator_submit_plan`.
 - Keep it in `active/` while under review or execution.
-- After implementation and verification, move it to `completed/` and add an `Outcome` section with the date, relevant commits, and verification.
+- After implementation and verification, move it to `completed/` and add an `Outcome` section with the date, relevant commits if any, and verification.
 - For an abandoned or superseded plan, add `Status: abandoned` and the reason, then move it to `completed/`.
 - Never edit a completed plan to describe new work; create a new plan in `active/`.
 - Plans are documentation, must be in English, and must not contain credentials or other secrets.
 - `.pi/plans/` is gitignored. Never commit a plan, including with `git add -f`.
+- A plan does not authorize a commit or push; see 2.3.
 
-### 2.5 Use pnpm for all Node.js work
+### 2.6 Use pnpm for all Node.js work
 
 - Use pnpm only, at the version pinned by `packageManager` and `devEngines.packageManager` in `package.json`. Do not use npm, Yarn, Bun, or `npx` for dependencies or project scripts.
 - Commit `pnpm-lock.yaml` and `pnpm-workspace.yaml`; never add `package-lock.json`, `yarn.lock`, `bun.lockb`, or `node_modules/`.
@@ -82,7 +95,7 @@ Every plan document produced for this project must be stored under `.pi/plans/`:
 - Use `pnpm exec` for local binaries. CI uses `pnpm install --frozen-lockfile`.
 - The `npm:` prefix in `pi install npm:pi-dswa` is Pi's package source syntax, not the npm CLI.
 
-### 2.6 License
+### 2.7 License
 
 BSD-3-Clause. See [`LICENSE`](LICENSE).
 
@@ -157,16 +170,14 @@ Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discov
 
 ## 7. Workflow and done
 
-For non-trivial work:
-
 1. Read this file, check `git status`, and ensure pnpm dependencies and pre-commit hooks are installed.
 2. Read the relevant Pi documentation before using Pi APIs.
-3. Create and review a plan in `.pi/plans/active/`.
+3. If the owner started plan mode with `@plannotator/pi-extension`, write the plan in `.pi/plans/active/`, submit it, and wait for approval before implementing. Otherwise implement directly.
 4. Implement in small increments, with tests, and keep coverage at 100%.
 5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -e .`.
 6. Update `README.md` and this file if behavior or rules changed.
-7. Move the plan to `.pi/plans/completed/`.
-8. Commit through the `git-commit` skill; Commitizen and all pre-commit hooks must pass.
+7. Move any plan you used to `.pi/plans/completed/`.
+8. Report the result and the verification output, then stop. Commit and push only after the owner explicitly asks, through the `git-commit` skill.
 
 A change is done only when:
 
@@ -175,8 +186,8 @@ A change is done only when:
 - The package loads with `pi -e .` and both tools work with a real credential.
 - `README.md` matches the implemented behavior.
 - No secrets, plan files, or unrelated changes are staged.
-- The commit uses the `git-commit` skill and an English Conventional Commit message.
 - Any plan used is in `.pi/plans/completed/` with an outcome note.
+- A commit or push, when requested, happens only after explicit owner approval and uses the `git-commit` skill with an English Conventional Commit message.
 
 ## 8. Security
 
