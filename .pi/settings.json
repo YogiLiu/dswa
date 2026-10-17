@@ -1,3 +1,7 @@
 {
-  "packages": ["npm:@plannotator/pi-extension", "npm:@juicesharp/rpiv-ask-user-question"]
+  "packages": [
+    "npm:@plannotator/pi-extension",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:pi-dswa"
+  ]
 }
