@@ -165,9 +165,9 @@ Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discov
 - Never bypass hooks with `--no-verify`; only the owner may authorize an exception. If hooks cannot run, stop and fix the environment instead of committing.
 - Hooks verify only; they never rewrite files. Run `pnpm run format` and `pnpm run lint:fix` before committing when formatting or lint findings need to be fixed.
 - `pnpm run check` must pass: `oxfmt --check`, `oxlint`, `tsc --noEmit`, and `vitest run --coverage`.
-- Smoke-test in real Pi with `pi -e .` and a real DeepSeek credential before finishing a change.
+- Smoke-test in real Pi with `pi -ne -e .` and a real DeepSeek credential before finishing a change.
 - `README.md` is part of the product. Keep it accurate and update it in the same commit as behavior changes.
-- README must cover installation (`pi install npm:pi-dswa` and `pi -e .`), authentication (`/login deepseek` or `DEEPSEEK_API_KEY`), tool usage, billing and rate-limit links, privacy, the prompt-injection warning for untrusted web content, development commands, and the tested Pi version.
+- README must cover installation (`pi install npm:pi-dswa` and `pi -ne -e .`), authentication (`/login deepseek` or `DEEPSEEK_API_KEY`), tool usage, billing and rate-limit links, privacy, the prompt-injection warning for untrusted web content, development commands, and the tested Pi version.
 
 ## 7. Workflow and done
 
@@ -175,7 +175,7 @@ Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discov
 2. Read the relevant Pi documentation before using Pi APIs.
 3. If the owner started plan mode with `@plannotator/pi-extension`, write the plan in `.pi/plans/active/`, submit it, and wait for approval before implementing. Otherwise implement directly.
 4. Implement in small increments, with tests, and keep coverage at 100%.
-5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -e .`.
+5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -ne -e .`.
 6. Update `README.md` and this file if behavior or rules changed.
 7. Move any plan you used to `.pi/plans/completed/`.
 8. Report the result and the verification output, then stop. Commit and push only after the owner explicitly asks, through the `git-commit` skill.
@@ -184,7 +184,7 @@ A change is done only when:
 
 - `pnpm run check` passes and every pre-commit hook passes.
 - `extensions/` and `src/` have 100% statement, branch, function, and line coverage.
-- The package loads with `pi -e .` and both tools work with a real credential.
+- The package loads with `pi -ne -e .` and both tools work with a real credential.
 - `README.md` matches the implemented behavior.
 - No secrets, plan files, or unrelated changes are staged.
 - Any plan used is in `.pi/plans/completed/` with an outcome note.

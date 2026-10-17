@@ -34,7 +34,7 @@ Or load a local checkout for one invocation without changing your Pi settings:
 git clone https://github.com/YogiLiu/dswa.git
 cd dswa
 pnpm install
-pi -e .
+pi -ne -e .
 ```
 
 After installation, both tools are available automatically.
