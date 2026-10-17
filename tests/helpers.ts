@@ -1,4 +1,7 @@
 import type { AgentToolResult, ExtensionToolContext } from "@earendil-works/pi-coding-agent";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { vi } from "vitest";
 
 /** Minimal model registry fake used by tool tests. */
@@ -55,4 +58,14 @@ export function createToolContext(registry: ModelRegistryFake): ExtensionToolCon
 export function resultText(result: AgentToolResult<unknown>): string {
   const [first] = result.content;
   return first?.type === "text" ? first.text : "";
+}
+
+/** Create a controlled parent directory for temp artifact tests. */
+export async function createTempRoot(): Promise<string> {
+  return mkdtemp(join(tmpdir(), "pi-dswa-test-"));
+}
+
+/** Remove a controlled temp root. */
+export async function removeTempRoot(root: string): Promise<void> {
+  await rm(root, { recursive: true, force: true });
 }
