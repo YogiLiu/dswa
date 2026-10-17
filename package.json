@@ -12,6 +12,14 @@
   ],
   "author": "YogiLiu",
   "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YogiLiu/dswa.git"
+  },
+  "homepage": "https://github.com/YogiLiu/dswa#readme",
+  "bugs": {
+    "url": "https://github.com/YogiLiu/dswa/issues"
+  },
   "pi": {
     "extensions": [
       "./extensions/dswa.ts"
