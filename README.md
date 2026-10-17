@@ -1,5 +1,7 @@
 # pi-dswa
 
+[![npm version](https://img.shields.io/npm/v/pi-dswa.svg)](https://www.npmjs.com/package/pi-dswa)
+
 DeepSeek Web Access for Pi: official web search and fetch tools.
 
 `pi-dswa` exposes DeepSeek's official **Search** and **Fetch** APIs as the Pi tools
