@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "npm:@plannotator/pi-extension",
+    "npm:@juicesharp/rpiv-ask-user-question"
+  ]
+}
