@@ -22,7 +22,7 @@
   },
   "pi": {
     "extensions": [
-      "./extensions/dswa.ts"
+      "./extensions/index.ts"
     ]
   },
   "files": [

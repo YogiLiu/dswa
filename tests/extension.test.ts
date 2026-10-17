@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { describe, expect, it } from "vitest";
-import dswa from "../extensions/dswa.ts";
+import dswa from "../extensions/index.ts";
 
 type CapturedTool = Record<string, unknown>;
 

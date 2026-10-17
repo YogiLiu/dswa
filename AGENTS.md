@@ -103,10 +103,11 @@ BSD-3-Clause. See [`LICENSE`](LICENSE).
 
 Follow the official Pi package and extension docs. Treat `package.json` as the source of truth for package metadata and keep it aligned with those docs. If this file and the official docs disagree, the official docs win; update this file.
 
-- Keep the `pi-package` keyword and the `pi.extensions` entry for `./extensions/dswa.ts`.
+- Keep the `pi-package` keyword and the `pi.extensions` entry for `./extensions/index.ts`.
 - Declare host-provided packages in `peerDependencies` with `*`; never put them in `dependencies` or bundle them.
+- Keep the extension entry file named `extensions/index.ts`. Pi labels a package extension by its source plus the entry path, so any other filename makes the UI show `<package>:<file>` instead of just the package name.
 - No build step or bundler. Pi loads TypeScript with `jiti`. Do not use `main` as the Pi entry point.
-- Keep `extensions/dswa.ts` thin: register tools and delegate to `src/`.
+- Keep `extensions/index.ts` thin: register tools and delegate to `src/`.
 - Do not add a provider, MCP server, CLI, theme, or command unless the owner approves it.
 - Register exactly two tools, `deepseek_search` and `deepseek_fetch`. Tool names are public API; renaming one is a breaking change.
 - Search parameters: `query` (1-128 characters, not all whitespace), `count` (1-50, default 10), `need_content` (default false), and optional `ori_question` (1-128 characters). Do not expose `localization` unless approved.
@@ -136,7 +137,7 @@ const apiKey = await ctx.modelRegistry.getApiKeyForProvider("deepseek");
 ## 5. Layout
 
 ```text
-extensions/dswa.ts      # Pi entry point
+extensions/index.ts     # Pi entry point
 src/                    # client, formatting, errors, tool implementations
 tests/                  # unit tests with an injected fetch
 vitest.config.ts
