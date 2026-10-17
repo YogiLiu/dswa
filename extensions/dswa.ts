@@ -1,5 +1,9 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { createFetchTool } from "../src/fetch.ts";
+import { createSearchTool } from "../src/search.ts";
 
-export default function dswa(_pi: ExtensionAPI): void {
-  // The search and fetch tools are registered here in the implementation step.
+/** Register the DeepSeek Web Access tools with Pi. */
+export default function dswa(pi: ExtensionAPI): void {
+  pi.registerTool(createSearchTool());
+  pi.registerTool(createFetchTool());
 }
