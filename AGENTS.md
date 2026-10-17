@@ -49,6 +49,8 @@ Before creating any commit, load and follow `.agents/skills/git-commit/SKILL.md`
 
 Commitizen (`cz.toml`) and pre-commit (`.pre-commit-config.yaml`) validate commits. Install the hooks once per checkout with `pre-commit install` and `pre-commit install --hook-type pre-push`; install the Python tools with pipx, uv, or the owner's tool manager. `cz commit` does not replace the `git-commit` skill. Do not bypass hooks with `--no-verify`; only the owner may authorize an exception.
 
+The pre-commit configuration is the required entry point for formatting, linting, typechecking, unit tests, and the coverage gate. Removing or weakening those hooks requires owner approval.
+
 For a release requested by the owner, prepare version and changelog changes with `cz bump --version-files-only` and `cz changelog`, then commit through the skill. Tags use the `$version` format, for example `1.2.3`, not `v1.2.3`.
 
 Never commit secrets, credentials, `.pi/plans/`, dependency trees, or generated local files.
@@ -124,6 +126,9 @@ const apiKey = await ctx.modelRegistry.getApiKeyForProvider("deepseek");
 extensions/dswa.ts      # Pi entry point
 src/                    # client, formatting, errors, tool implementations
 tests/                  # unit tests with an injected fetch
+vitest.config.ts
+.oxfmtrc.json
+.oxlintrc.json
 package.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
@@ -137,10 +142,15 @@ AGENTS.md
 
 Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discover them as separate extensions.
 
-## 6. Testing and documentation
+## 6. Testing, coverage, and documentation
 
 - Unit tests use an injected `fetch` and must not require network access or a real API key. Cover request shape, parameter validation, response mapping, retry and abort behavior, truncation, and missing credentials.
-- `pnpm run check` must pass (`tsc --noEmit` plus Vitest).
+- The project requires 100% unit-test coverage for all shipped runtime code: `extensions/**/*.ts` and `src/**/*.ts`. Tests and `*.d.ts` files are excluded. Statements, branches, functions, and lines must all remain at 100%.
+- Do not lower the coverage thresholds or add coverage exclusions to make a change pass. Add tests or refactor the code instead. Any change to the coverage scope or thresholds requires owner approval.
+- Every commit must pass these pre-commit hooks: `oxfmt --check`, `oxlint`, `tsc --noEmit`, and `vitest run --coverage`. The coverage hook runs the unit tests and enforces the 100% gate in one pass. All four checks must stay in `.pre-commit-config.yaml` and run on every commit (`always_run: true` for typecheck and coverage).
+- Never bypass hooks with `--no-verify`; only the owner may authorize an exception. If hooks cannot run, stop and fix the environment instead of committing.
+- Hooks verify only; they never rewrite files. Run `pnpm run format` and `pnpm run lint:fix` before committing when formatting or lint findings need to be fixed.
+- `pnpm run check` must pass: `oxfmt --check`, `oxlint`, `tsc --noEmit`, and `vitest run --coverage`.
 - Smoke-test in real Pi with `pi -e .` and a real DeepSeek credential before finishing a change.
 - `README.md` is part of the product. Keep it accurate and update it in the same commit as behavior changes.
 - README must cover installation (`pi install npm:pi-dswa` and `pi -e .`), authentication (`/login deepseek` or `DEEPSEEK_API_KEY`), tool usage, billing and rate-limit links, privacy, the prompt-injection warning for untrusted web content, development commands, and the tested Pi version.
@@ -152,16 +162,17 @@ For non-trivial work:
 1. Read this file, check `git status`, and ensure pnpm dependencies and pre-commit hooks are installed.
 2. Read the relevant Pi documentation before using Pi APIs.
 3. Create and review a plan in `.pi/plans/active/`.
-4. Implement in small increments, with tests.
-5. Run `pnpm run check` and smoke-test with `pi -e .`.
+4. Implement in small increments, with tests, and keep coverage at 100%.
+5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -e .`.
 6. Update `README.md` and this file if behavior or rules changed.
 7. Move the plan to `.pi/plans/completed/`.
-8. Commit through the `git-commit` skill; Commitizen and pre-commit must pass.
+8. Commit through the `git-commit` skill; Commitizen and all pre-commit hooks must pass.
 
 A change is done only when:
 
-- `pnpm run check` passes and the package loads with `pi -e .`.
-- Both tools work with a real credential.
+- `pnpm run check` passes and every pre-commit hook passes.
+- `extensions/` and `src/` have 100% statement, branch, function, and line coverage.
+- The package loads with `pi -e .` and both tools work with a real credential.
 - `README.md` matches the implemented behavior.
 - No secrets, plan files, or unrelated changes are staged.
 - The commit uses the `git-commit` skill and an English Conventional Commit message.

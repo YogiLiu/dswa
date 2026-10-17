@@ -1,8 +1,36 @@
 repos:
-- hooks:
-  - id: commitizen
-  - id: commitizen-branch
-    stages:
-    - pre-push
-  repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.19.2
+  - repo: local
+    hooks:
+      - id: oxfmt
+        stages: [pre-commit]
+        name: oxfmt
+        entry: pnpm exec oxfmt --check
+        language: system
+        types_or: [ts, tsx, javascript, jsx, json, yaml, markdown]
+      - id: oxlint
+        stages: [pre-commit]
+        name: oxlint
+        entry: pnpm exec oxlint
+        language: system
+        types_or: [ts, tsx, javascript, jsx]
+      - id: typecheck
+        stages: [pre-commit]
+        name: typecheck
+        entry: pnpm exec tsc --noEmit
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: unit-tests-coverage
+        stages: [pre-commit]
+        name: unit tests and 100% coverage
+        entry: pnpm exec vitest run --coverage
+        language: system
+        pass_filenames: false
+        always_run: true
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.19.2
+    hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages:
+          - pre-push
