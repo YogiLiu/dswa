@@ -218,8 +218,11 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/linux,windows,macos,node
 
 # Project-specific
-# Plannotator plan documents are local working files and are never committed.
+# Plan-review and todo artifacts are local working files and are never committed.
 .pi/plans/
+.pi/plannotator.json
+.pi/todos/
+.plannotator/
 
 # Pi-managed package installation cache.
 .pi/npm/

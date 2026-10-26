@@ -31,7 +31,7 @@ Non-goals unless the owner explicitly changes them:
 Development and review must be done with Pi. Do not use, invoke, or delegate work to Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, opencode, Windsurf, Aider, or any other coding agent.
 
 - Do not create instruction or configuration files for other agents, including `CLAUDE.md`, `.claude/`, `.cursor/`, `.cursorrules`, `.github/copilot-instructions.md`, `.windsurfrules`, `.gemini/`, or `.aider*`.
-- Do not apply patches, reviews, or plans produced by another coding agent.
+- Do not apply patches or reviews produced by another coding agent.
 - Do not run another agent's CLI to generate code for this repository.
 - If a task cannot be completed with Pi, stop and ask the owner instead of switching tools.
 
@@ -65,31 +65,9 @@ For a release requested by the owner, prepare version and changelog changes with
 
 Publishing is automated by `.github/workflows/publish.yml` and runs only when the owner pushes a `$version` tag (or manually dispatches that workflow from a tag). The workflow requires `id-token: write`, verifies the tag matches `package.json`, runs `pnpm run check`, and stages the release with `npm stage publish --provenance` through npm trusted publishing (OIDC). The owner then approves the staged package with 2FA on npmjs.com; nothing goes public without that approval. Keep the trust relationship stage-only: never enable direct `npm publish` for it, never add an `NPM_TOKEN` secret, a `NODE_AUTH_TOKEN` fallback, or a publish step outside that workflow. Do not stage, approve, or publish a release, create a tag, or dispatch the workflow on your own initiative.
 
-Never commit secrets, credentials, `.pi/plans/`, dependency trees, or generated local files.
+Never commit secrets, credentials, dependency trees, or generated local files.
 
-### 2.5 Plans are optional and owner-triggered
-
-Most tasks do not need a plan: implement small, well-specified work directly. Do not create, draft, or submit a plan document on your own initiative, and do not turn a routine change into a planning exercise.
-
-Plans exist only in Plannotator plan mode, which the owner starts through `@plannotator/pi-extension`: `/plannotator-plan-mode`, `Ctrl+Alt+P`, or `pi --plan`. Plan mode is also the only situation in which `plannotator_submit_plan` may be called. When the owner has started it, every plan document produced for this project must be stored under `.pi/plans/`:
-
-```text
-.pi/plans/
-├── active/      # being drafted, reviewed, or executed
-└── completed/   # implemented, or explicitly abandoned/superseded
-```
-
-- Name files `YYYY-MM-DD-<kebab-case-slug>.md`.
-- Create the plan in `active/` and pass that path to `plannotator_submit_plan`.
-- Keep it in `active/` while under review or execution.
-- After implementation and verification, move it to `completed/` and add an `Outcome` section with the date, relevant commits if any, and verification.
-- For an abandoned or superseded plan, add `Status: abandoned` and the reason, then move it to `completed/`.
-- Never edit a completed plan to describe new work; create a new plan in `active/`.
-- Plans are documentation, must be in English, and must not contain credentials or other secrets.
-- `.pi/plans/` is gitignored. Never commit a plan, including with `git add -f`.
-- A plan does not authorize a commit or push; see 2.3.
-
-### 2.6 Use pnpm for all Node.js work
+### 2.5 Use pnpm for all Node.js work
 
 - Use pnpm only, at the version pinned by `packageManager` and `devEngines.packageManager` in `package.json`. Do not use npm, Yarn, Bun, or `npx` for dependencies or project scripts.
 - Commit `pnpm-lock.yaml` and `pnpm-workspace.yaml`; never add `package-lock.json`, `yarn.lock`, `bun.lockb`, or `node_modules/`.
@@ -97,7 +75,7 @@ Plans exist only in Plannotator plan mode, which the owner starts through `@plan
 - Use `pnpm exec` for local binaries. CI uses `pnpm install --frozen-lockfile`.
 - The `npm:` prefix in `pi install npm:pi-dswa` is Pi's package source syntax, not the npm CLI.
 
-### 2.7 License
+### 2.6 License
 
 BSD-3-Clause. See [`LICENSE`](LICENSE).
 
@@ -177,12 +155,10 @@ Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discov
 
 1. Read this file, check `git status`, and ensure pnpm dependencies and pre-commit hooks are installed.
 2. Read the relevant Pi documentation before using Pi APIs.
-3. If the owner started plan mode with `@plannotator/pi-extension`, write the plan in `.pi/plans/active/`, submit it, and wait for approval before implementing. Otherwise implement directly.
-4. Implement in small increments, with tests, and keep coverage at 100%.
-5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -ne -e .`. `.github/workflows/ci.yml` runs the same `pnpm run check` gates on pull requests and pushes to `main`; a red CI run must be fixed, not bypassed.
-6. Update `README.md` and this file if behavior or rules changed.
-7. Move any plan you used to `.pi/plans/completed/`.
-8. Report the result and the verification output, then stop. Commit and push only after the owner explicitly asks, through the `git-commit` skill.
+3. Implement in small increments, with tests, and keep coverage at 100%.
+4. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -ne -e .`. `.github/workflows/ci.yml` runs the same `pnpm run check` gates on pull requests and pushes to `main`; a red CI run must be fixed, not bypassed.
+5. Update `README.md` and this file if behavior or rules changed.
+6. Report the result and the verification output, then stop. Commit and push only after the owner explicitly asks, through the `git-commit` skill.
 
 A change is done only when:
 
@@ -190,8 +166,7 @@ A change is done only when:
 - `extensions/` and `src/` have 100% statement, branch, function, and line coverage.
 - The package loads with `pi -ne -e .` and both tools work with a real credential.
 - `README.md` matches the implemented behavior.
-- No secrets, plan files, or unrelated changes are staged.
-- Any plan used is in `.pi/plans/completed/` with an outcome note.
+- No secrets or unrelated changes are staged.
 - A commit or push, when requested, happens only after explicit owner approval and uses the `git-commit` skill with an English Conventional Commit message.
 
 ## 8. Security
