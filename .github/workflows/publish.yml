@@ -42,7 +42,6 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
           package-manager-cache: false
       - name: Verify the tag matches package.json
         run: |
@@ -55,18 +54,22 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run quality gates
         run: pnpm run check
-      - name: Upgrade npm for OIDC trusted publishing
-        run: |
-          npm install --global npm@^11.15.0
-          npm --version
       - name: Inspect the package contents
-        run: npm pack --dry-run
+        run: pnpm pack --dry-run
+      # The release tag checks out a detached HEAD, so pnpm's git checks for the publish
+      # branch cannot pass. Keep the checks on everywhere else and stage with the pinned
+      # pnpm; its OIDC exchange needs the id-token: write permission set above.
       - name: Stage the release on npm
-        run: npm stage publish --access public --provenance
+        run: |
+          pnpm stage publish \
+            --registry https://registry.npmjs.org/ \
+            --access public \
+            --provenance \
+            --no-git-checks
       - name: Record the staged release
         run: |
           {
             echo "Staged \`pi-dswa@$GITHUB_REF_NAME\` for approval."
             echo
-            echo "The version is not public yet. Open the Staged Packages tab on npmjs.com, review the tarball, and approve it with 2FA. Or run \`npm stage list pi-dswa\`, then \`npm stage view <stage-id>\`, \`npm stage download <stage-id>\`, and \`npm stage approve <stage-id>\` locally."
+            echo "The version is not public yet. Open the Staged Packages tab on npmjs.com, review the tarball, and approve it with 2FA. Or run \`pnpm stage list pi-dswa\`, then \`pnpm stage view <stage-id>\`, \`pnpm stage download <stage-id>\`, and \`pnpm stage approve <stage-id>\` locally."
           } >> "$GITHUB_STEP_SUMMARY"

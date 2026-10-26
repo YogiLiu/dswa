@@ -280,21 +280,23 @@ package must all agree.
    the bare `$version` format configured in `cz.toml`, never a `v` prefix.
 3. Pushing the tag runs [`.github/workflows/publish.yml`](.github/workflows/publish.yml). The job
    refuses to run from a branch, checks that the tag matches `package.json`, runs `pnpm run check`,
-   and stages the release with `npm stage publish --provenance` using npm trusted publishing
+   and stages the release with `pnpm stage publish --provenance` using npm trusted publishing
    (OIDC). No npm token is stored in this repository, and staging alone does not make the version
    public.
 4. Approve the staged release with 2FA. On npmjs.com, open the Staged Packages tab, review the
-   tarball, and click Approve. The CLI equivalent is `npm stage list pi-dswa`,
-   `npm stage view <stage-id>`, `npm stage download <stage-id>` for inspection, then
-   `npm stage approve <stage-id>`; `npm stage reject <stage-id>` discards a staged version. The
+   tarball, and click Approve. The CLI equivalent is `pnpm stage list pi-dswa`,
+   `pnpm stage view <stage-id>`, `pnpm stage download <stage-id>` for inspection, then
+   `pnpm stage approve <stage-id>`; `pnpm stage reject <stage-id>` discards a staged version. The
    version only becomes installable after approval, and approval requires 2FA on the npm account.
 
 The workflow can also be started manually from the Actions tab, but only with a release tag
 selected as the ref. To stage the same version again, reject the staged package first and re-run
 the workflow.
 
-`npm stage publish` requires npm CLI 11.15.0 or newer (the workflow installs it); trusted
-publishing itself requires npm 11.5.1 or newer and Node.js 22.14.0 or newer.
+The release job stages with the pnpm version pinned by `packageManager`, which is newer than pnpm
+11.3.0, where `pnpm stage` was added. A tag checkout is a detached `HEAD`, so the staging step
+passes `--no-git-checks`; every other git check stays on. Trusted publishing needs the
+`id-token: write` permission declared in the workflow.
 
 One-time npm configuration: in the package settings on npmjs.com, add a GitHub Actions trusted
 publisher with user `YogiLiu`, repository `dswa`, and workflow filename `publish.yml`, and leave
