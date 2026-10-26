@@ -224,5 +224,9 @@ $RECYCLE.BIN/
 .pi/todos/
 .plannotator/
 
+# Plannotator plan files written by plan mode at the repo root.
+/PLAN.md
+/plans/
+
 # Pi-managed package installation cache.
 .pi/npm/
