@@ -79,19 +79,19 @@ The model-facing result is a compact ranked list:
 
 ```text
 2 results for "DeepSeek V4 release"
-Details: `/tmp/pi-dswa-abc123/` (results.json and 1.md..2.md)
+Details: `/tmp/pi-dswa/call-abc123/` (results.json and 1.md..2.md)
 
 1. DeepSeek V4 model released
    https://example.com/deepseek-v4
    rerank 2.40 · authority 3 · 2026-06-01 · Example News
    Summary: DeepSeek has released the V4 model...
-   Detail: `/tmp/pi-dswa-abc123/1.md`
+   Detail: `/tmp/pi-dswa/call-abc123/1.md`
 
 2. DeepSeek V4 benchmarks
    https://example.com/benchmarks
    rerank 2.10 · authority 2 · 2026-05-28 · Example Blog
    Summary: Independent benchmarks...
-   Detail: `/tmp/pi-dswa-abc123/2.md`
+   Detail: `/tmp/pi-dswa/call-abc123/2.md`
 ```
 
 The path above is a Linux example; the actual path uses the platform temp directory. The compact
@@ -123,7 +123,7 @@ The tool always saves the full page as Markdown and returns a bounded summary pl
 
 ```text
 Fetched "Example" from https://example.com/
-Markdown: `/tmp/pi-dswa-abc123/page.md`
+Markdown: `/tmp/pi-dswa/call-abc123/page.md`
 Size: 12.3KB, 234 lines
 
 Headings:
@@ -146,9 +146,11 @@ automatically; use `read` or `grep` on the stored file for the sections you need
 
 ## Temporary files
 
-Both tools write model-readable artifacts to a random per-call directory under the OS temp
-directory. Node's `os.tmpdir()` follows the platform convention (`TMPDIR` on macOS/Linux,
-`TEMP`/`TMP` on Windows), so the same code works on all supported systems.
+Both tools write model-readable artifacts to a random per-call directory under one shared
+`pi-dswa` directory in the OS temp directory. Node's `os.tmpdir()` follows the platform convention
+(`TMPDIR` on macOS/Linux, `TEMP`/`TMP` on Windows), so the same code works on all supported systems.
+The shared parent keeps the temp directory itself tidy: `os.tmpdir()` only ever gains a single
+`pi-dswa` entry, and every call creates a new `call-*` directory inside it.
 
 | Artifact            | Contents                                                                                                                                                                                                                                                             |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -158,8 +160,8 @@ directory. Node's `os.tmpdir()` follows the platform convention (`TMPDIR` on mac
 
 - Directory names are random, and file names are ASCII-only (`1.md`, `page.md`, `results.json`) so
   paths are valid on Linux, macOS, and Windows.
-- On POSIX, the directory is created private and files use mode `0600` where supported. On Windows,
-  the per-user temp directory and inherited ACLs apply.
+- On POSIX, the shared `pi-dswa` directory is created private (`0700`) and files use mode `0600`
+  where supported. On Windows, the per-user temp directory and inherited ACLs apply.
 - The extension does not delete these files. The OS temp cleaner manages them, so they may disappear
   after a restart or cleanup. Do not rely on them as a cache.
 - The files can contain search queries, the original question, and page content. Treat the temporary

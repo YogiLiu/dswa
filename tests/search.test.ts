@@ -1,6 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Value } from "typebox/value";
 import type { SearchResult } from "../src/client.ts";
@@ -367,7 +367,7 @@ describe("createSearchTool", () => {
     const details = result.details as SearchToolDetails;
 
     try {
-      expect(details.detailsDir?.startsWith(tmpdir())).toBe(true);
+      expect(dirname(details.detailsDir!)).toBe(join(tmpdir(), "pi-dswa"));
     } finally {
       if (details.detailsDir) await removeTempRoot(details.detailsDir);
     }

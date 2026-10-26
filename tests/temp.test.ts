@@ -1,6 +1,6 @@
 import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { createTempFiles } from "../src/temp.ts";
 
@@ -25,9 +25,21 @@ describe("createTempFiles", () => {
     const second = await files.write("results.json", "{}");
 
     expect(dirname(first)).toBe(dirname(second));
-    expect(dirname(first).startsWith(root)).toBe(true);
+    expect(dirname(first)).toBe(join(root, "pi-dswa", basename(dirname(first))));
+    expect(basename(dirname(first)).startsWith("call-")).toBe(true);
     expect(await readFile(first, "utf8")).toBe("first");
     expect(await readFile(second, "utf8")).toBe("{}");
+  });
+
+  it("groups directories from separate calls under one shared parent", async () => {
+    const root = await makeRoot();
+
+    const first = await createTempFiles({ root }).write("1.md", "first");
+    const second = await createTempFiles({ root }).write("1.md", "second");
+
+    expect(dirname(first)).not.toBe(dirname(second));
+    expect(dirname(dirname(first))).toBe(join(root, "pi-dswa"));
+    expect(dirname(dirname(second))).toBe(join(root, "pi-dswa"));
   });
 
   it.skipIf(process.platform === "win32")("creates files with user-only permissions", async () => {
@@ -43,7 +55,7 @@ describe("createTempFiles", () => {
 
     const path = await files.write("page.md", "body");
     try {
-      expect(path.startsWith(tmpdir())).toBe(true);
+      expect(dirname(dirname(path))).toBe(join(tmpdir(), "pi-dswa"));
       expect(await readFile(path, "utf8")).toBe("body");
     } finally {
       await rm(dirname(path), { recursive: true, force: true });

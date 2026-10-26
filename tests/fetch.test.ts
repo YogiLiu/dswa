@@ -1,6 +1,6 @@
 import { readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Value } from "typebox/value";
 import {
@@ -228,7 +228,7 @@ describe("createFetchTool", () => {
     const details = result.details as FetchToolDetails;
 
     try {
-      expect(dirname(details.fullContentPath!).startsWith(tmpdir())).toBe(true);
+      expect(dirname(dirname(details.fullContentPath!))).toBe(join(tmpdir(), "pi-dswa"));
       expect(await readFile(details.fullContentPath!, "utf8")).toBe("# Example\n\nBody");
     } finally {
       if (details.fullContentPath) {
