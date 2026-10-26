@@ -1,6 +1,6 @@
 {
   "name": "pi-dswa",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "DeepSeek Web Access for Pi: official web search and fetch tools.",
   "type": "module",
   "keywords": [
