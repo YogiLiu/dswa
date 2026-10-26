@@ -1,6 +1,7 @@
 # pi-dswa
 
 [![npm version](https://img.shields.io/npm/v/pi-dswa.svg)](https://www.npmjs.com/package/pi-dswa)
+[![CI](https://github.com/YogiLiu/dswa/actions/workflows/ci.yml/badge.svg)](https://github.com/YogiLiu/dswa/actions/workflows/ci.yml)
 
 DeepSeek Web Access for Pi: official web search and fetch tools.
 
