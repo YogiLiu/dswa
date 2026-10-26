@@ -1,3 +1,9 @@
+## 0.3.2 (2026-10-26)
+
+### Fix
+
+- **ci**: stage releases with pnpm
+
 ## 0.3.1 (2026-10-26)
 
 ### Docs
