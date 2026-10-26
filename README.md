@@ -268,6 +268,44 @@ These smoke tests make real, billable DeepSeek requests. They disable built-in t
 extension; remove `--no-builtin-tools` if you want the model to inspect the stored Markdown with
 `read` or `grep`.
 
+## Releasing
+
+Releases are automated. The version in `package.json`, the changelog, the tag, and the published
+package must all agree.
+
+1. Prepare the release with Commitizen: `cz bump --version-files-only` updates the version fields
+   and `cz changelog` rewrites `CHANGELOG.md`.
+2. Commit the release commit, then create and push the version tag, for example `0.3.0`. Tags use
+   the bare `$version` format configured in `cz.toml`, never a `v` prefix.
+3. Pushing the tag runs [`.github/workflows/publish.yml`](.github/workflows/publish.yml). The job
+   refuses to run from a branch, checks that the tag matches `package.json`, runs `pnpm run check`,
+   and stages the release with `npm stage publish --provenance` using npm trusted publishing
+   (OIDC). No npm token is stored in this repository, and staging alone does not make the version
+   public.
+4. Approve the staged release with 2FA. On npmjs.com, open the Staged Packages tab, review the
+   tarball, and click Approve. The CLI equivalent is `npm stage list pi-dswa`,
+   `npm stage view <stage-id>`, `npm stage download <stage-id>` for inspection, then
+   `npm stage approve <stage-id>`; `npm stage reject <stage-id>` discards a staged version. The
+   version only becomes installable after approval, and approval requires 2FA on the npm account.
+
+The workflow can also be started manually from the Actions tab, but only with a release tag
+selected as the ref. To stage the same version again, reject the staged package first and re-run
+the workflow.
+
+`npm stage publish` requires npm CLI 11.15.0 or newer (the workflow installs it); trusted
+publishing itself requires npm 11.5.1 or newer and Node.js 22.14.0 or newer.
+
+One-time npm configuration: in the package settings on npmjs.com, add a GitHub Actions trusted
+publisher with user `YogiLiu`, repository `dswa`, and workflow filename `publish.yml`, and leave
+`npm publish` unchecked so the trust relationship can only stage releases. Configurations created
+after 2026-09-03 default to staged publishing only, and a new configuration must complete its
+first successful publish within two days or it expires. For stronger security, also set
+**Publishing access** to require two-factor authentication and disallow tokens; trusted publishing
+keeps working.
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the same quality gates on every pull
+request and on every push to `main`, for Node.js 22 and 24.
+
 ## Links
 
 - Pi packages: <https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md>

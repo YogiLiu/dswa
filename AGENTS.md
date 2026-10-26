@@ -63,6 +63,8 @@ The pre-commit configuration is the required entry point for formatting, linting
 
 For a release requested by the owner, prepare version and changelog changes with `cz bump --version-files-only` and `cz changelog`, then commit through the skill. Tags use the `$version` format, for example `1.2.3`, not `v1.2.3`.
 
+Publishing is automated by `.github/workflows/publish.yml` and runs only when the owner pushes a `$version` tag (or manually dispatches that workflow from a tag). The workflow requires `id-token: write`, verifies the tag matches `package.json`, runs `pnpm run check`, and stages the release with `npm stage publish --provenance` through npm trusted publishing (OIDC). The owner then approves the staged package with 2FA on npmjs.com; nothing goes public without that approval. Keep the trust relationship stage-only: never enable direct `npm publish` for it, never add an `NPM_TOKEN` secret, a `NODE_AUTH_TOKEN` fallback, or a publish step outside that workflow. Do not stage, approve, or publish a release, create a tag, or dispatch the workflow on your own initiative.
+
 Never commit secrets, credentials, `.pi/plans/`, dependency trees, or generated local files.
 
 ### 2.5 Plans are optional and owner-triggered
@@ -137,6 +139,8 @@ const apiKey = await ctx.modelRegistry.getApiKeyForProvider("deepseek");
 ## 5. Layout
 
 ```text
+.github/workflows/ci.yml     # quality gates on pull requests and main
+.github/workflows/publish.yml # trusted publishing on version tags
 extensions/index.ts     # Pi entry point
 src/                    # client, formatting, errors, tool implementations
 tests/                  # unit tests with an injected fetch
@@ -167,7 +171,7 @@ Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discov
 - `pnpm run check` must pass: `oxfmt --check`, `oxlint`, `tsc --noEmit`, and `vitest run --coverage`.
 - Smoke-test in real Pi with `pi -ne -e .` and a real DeepSeek credential before finishing a change.
 - `README.md` is part of the product. Keep it accurate and update it in the same commit as behavior changes.
-- README must cover installation (`pi install npm:pi-dswa` and `pi -ne -e .`), authentication (`/login deepseek` or `DEEPSEEK_API_KEY`), tool usage, billing and rate-limit links, privacy, the prompt-injection warning for untrusted web content, development commands, and the tested Pi version.
+- README must cover installation (`pi install npm:pi-dswa` and `pi -ne -e .`), authentication (`/login deepseek` or `DEEPSEEK_API_KEY`), tool usage, billing and rate-limit links, privacy, the prompt-injection warning for untrusted web content, development commands, the release workflow and its one-time npm trusted-publisher setup, and the tested Pi version.
 
 ## 7. Workflow and done
 
@@ -175,7 +179,7 @@ Keep helpers under `src/`, not directly under `extensions/`, so Pi cannot discov
 2. Read the relevant Pi documentation before using Pi APIs.
 3. If the owner started plan mode with `@plannotator/pi-extension`, write the plan in `.pi/plans/active/`, submit it, and wait for approval before implementing. Otherwise implement directly.
 4. Implement in small increments, with tests, and keep coverage at 100%.
-5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -ne -e .`.
+5. Run `pnpm run check` and `pre-commit run --all-files`, then smoke-test with `pi -ne -e .`. `.github/workflows/ci.yml` runs the same `pnpm run check` gates on pull requests and pushes to `main`; a red CI run must be fixed, not bypassed.
 6. Update `README.md` and this file if behavior or rules changed.
 7. Move any plan you used to `.pi/plans/completed/`.
 8. Report the result and the verification output, then stop. Commit and push only after the owner explicitly asks, through the `git-commit` skill.
