@@ -3,6 +3,42 @@
 [![npm version](https://img.shields.io/npm/v/pi-dswa.svg)](https://www.npmjs.com/package/pi-dswa)
 [![CI](https://github.com/YogiLiu/dswa/actions/workflows/ci.yml/badge.svg)](https://github.com/YogiLiu/dswa/actions/workflows/ci.yml)
 
+> [!WARNING]
+> **This project is archived and no longer maintained.**
+> `pi-dswa` has been superseded by [`@pi-dstools/web`](https://www.npmjs.com/package/@pi-dstools/web),
+> which is developed in the new repository <https://github.com/YogiLiu/pi-dstools>.
+> This repository is read-only and kept only for historical reference; please open issues and
+> pull requests in the new repository instead.
+>
+> **本项目已归档，不再维护。** 请改用
+> [`@pi-dstools/web`](https://www.npmjs.com/package/@pi-dstools/web)，
+> 新仓库：<https://github.com/YogiLiu/pi-dstools>。
+
+## Migrating to `@pi-dstools/web`
+
+Run these commands from your terminal, outside a Pi session:
+
+```bash
+pi remove npm:pi-dswa
+pi install npm:@pi-dstools/web
+```
+
+`@pi-dstools/web` bundles both tools, now with shorter names:
+
+| `pi-dswa`         | `@pi-dstools/web` |
+| ----------------- | ----------------- |
+| `deepseek_search` | `ds_search`       |
+| `deepseek_fetch`  | `ds_fetch`        |
+
+It still reuses Pi's existing DeepSeek credential, so no second API key or package-specific
+configuration is needed. Use `pi config` to enable or disable each tool individually, or install
+`@pi-dstools/search` / `@pi-dstools/fetch` if you only need one of them. Documentation, source,
+and releases: <https://github.com/YogiLiu/pi-dstools>.
+
+---
+
+Everything below documents the archived `pi-dswa` 0.3.x release and is kept for reference only.
+
 DeepSeek Web Access for Pi: official web search and fetch tools.
 
 `pi-dswa` exposes DeepSeek's official **Search** and **Fetch** APIs as the Pi tools
